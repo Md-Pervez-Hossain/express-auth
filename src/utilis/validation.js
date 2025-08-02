@@ -127,7 +127,7 @@ const loginValidation= async (req,res,next)=>{
          return res.status(400).send("Password is Required")
     }
     if(!email || validator.isEmpty(email.trim())){
-        return res.status(400).send("Password is Required")
+        return res.status(400).send("Email is Required")
     }
     if(!validator.isEmail(email)){
     return res.status(400).send("Invalid Email")
@@ -138,7 +138,6 @@ const loginValidation= async (req,res,next)=>{
         return res.status(400).send("Invalid Creadential")
     }
     const hassedPassword=user.password
-
    // Load hash from your password DB.
    const matchPassword= await bcrypt.compare(password, hassedPassword);
    if(!matchPassword){
