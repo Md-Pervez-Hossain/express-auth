@@ -5,7 +5,8 @@ const { userRegistrationValidation, loginValidation } = require("../utilis/valid
 const userAuth = require("../middlewares/userAuth")
 const bcrypt = require('bcrypt');
 const upload = require("../middlewares/multerMiddleware");
-
+const path = require("path")
+const fs = require("fs")
 // user registration
 
 // POST /register
@@ -75,9 +76,38 @@ userRouter.get("/profile", userAuth, (req, res) => {
     }
 })
 
+userRouter.delete("/users/:id", async (req, res) => {
+    try {
+        const userId = req.params.id;
+
+        // Find the user
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Delete the photo if exists
+        if (user.photo) {
+            const photoPath = path.join(__dirname, "../uploads", user.photo);
+            // Check if file exists before deleting
+            if (fs.existsSync(photoPath)) {
+                fs.unlink(photoPath, (err) => { if (err) console.error(err) });
+            }
+        }
+
+        // Delete user from DB
+        await User.findByIdAndDelete(userId);
+
+        res.status(200).json({ message: "User deleted successfully" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Something went wrong" });
+    }
+});
+
 // get all user
 
-userRouter.get("/users", userAuth, async (req, res) => {
+userRouter.get("/users", async (req, res) => {
 
     try {
 
